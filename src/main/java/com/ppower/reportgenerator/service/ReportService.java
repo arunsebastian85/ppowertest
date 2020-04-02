@@ -10,4 +10,9 @@ public interface ReportService {
    List<SelectionLiabilityCurrencyReport> getSelectionLiabilityByCurrencyReport(List<BetDetails> betDetailsList);
 
    String getTotalLiabilityByCurrencyReport();
+
+   List<BetDetails> getBetDetailsFromCSV(String filePath);
+
+   //List<BetDetails> getBetDetailsFromJson();
+
 }

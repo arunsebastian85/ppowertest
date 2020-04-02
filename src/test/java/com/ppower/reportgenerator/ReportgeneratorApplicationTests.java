@@ -71,4 +71,10 @@ class ReportgeneratorApplicationTests {
 				.collect(Collectors.toList()).get(0).getTotalStakes());
 	}
 
+	@Test
+	void testCsvReader(){
+		String file = "bet_details.csv";
+		reportService.getBetDetailsFromCSV(file);
+	}
+
 }
