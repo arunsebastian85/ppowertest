@@ -80,6 +80,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<BetDetails> getBetDetailsFromCSV(String filePath) {
+        List<BetDetails> betDetailsList = new ArrayList<>();
         try {
             File file = ResourceUtils.getFile("classpath:"+filePath);
             Reader reader = new FileReader(file);
@@ -87,12 +88,18 @@ public class ReportServiceImpl implements ReportService {
                     .withType(BetDetails.class)
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
-            csvToBean.forEach(e->{
-                System.out.println(e.getBetId());
+            betDetailsList = csvToBean.parse();
+            betDetailsList.forEach(e->{
+                System.out.println("-------"+e.toString());
+            });
+            List<SelectionLiabilityCurrencyReport> list = getSelectionLiabilityByCurrencyReport(betDetailsList);
+            System.out.println("selectionName  currency numOfBets totalStakes totalLiability");
+            list.forEach(e->{
+                System.out.println(e.toString());
             });
         } catch (IOException ex){
             ex.printStackTrace();
         }
-        return null;
+        return betDetailsList;
     }
 }

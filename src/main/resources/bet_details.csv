@@ -1,2 +1,8 @@
 betId,betTimestamp,selectionId,selectionName,stake,price,currency
-bet-10,144467890999,1,puthussery,0.5,6.0,GBP
+bet-10, 144467890999, 1, puthussery, 0.5, 6.0, GBP
+Bet-10, 1489490156000, 1, My Fair Lady, 0.5, 6.0, GBP
+Bet-11, 1489490156000, 2, Always a Runner, 1.25, 4.0, EUR
+Bet-12, 1489230956000, 4, Bilbo's Adventure, 5.0, 4.5, GBP
+Bet-13, 1489403756000, 3, Fan the Flames, 4.5, 5.5, GBP
+Bet-14, 1489144556000, 2, Always a Runner, 7.9, 7.0, EUR
+Bet-15, 1489140956000, 1, My Fair Lady, 3.4, 6.5, EUR
