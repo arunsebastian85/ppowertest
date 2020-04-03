@@ -4,6 +4,7 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.ppower.reportgenerator.domain.BetDetails;
 import com.ppower.reportgenerator.domain.SelectionLiabilityCurrencyReport;
+import com.ppower.reportgenerator.domain.TotalLiabilityCurrencyReport;
 import com.ppower.reportgenerator.service.ReportService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -12,10 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,9 +24,9 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public  List<SelectionLiabilityCurrencyReport> getSelectionLiabilityByCurrencyReport(List<BetDetails> betDetailsList) {
 
-        Map<String, Map<String,List<BetDetails>>> betDetailsGrouped= betDetailsList.stream().collect(Collectors.groupingBy(e->e.getSelectionName(),
+        Map<String, Map<String,List<BetDetails>>> betDetailsGrouped= betDetailsList.stream().collect(Collectors
+                .groupingBy(e->e.getSelectionName(),
                 Collectors.groupingBy(BetDetails::getCurrency)));
-
         List<SelectionLiabilityCurrencyReport> selectionLiabilityCurrencyReports = new ArrayList<>();
         betDetailsGrouped.entrySet().forEach(entry -> {
             entry.getValue().entrySet().forEach(keySet->{
@@ -38,12 +36,15 @@ public class ReportServiceImpl implements ReportService {
                         .build();
                 float totalStake=0L;
                 float totalLiability=0L;
+                int numOfBets = 0;
                 for(BetDetails data:keySet.getValue()){
                    totalStake = totalStake + data.getStake();
                    totalLiability = totalLiability + (data.getStake()*data.getPrice());
+                   numOfBets ++;
                 }
                 selectionLiabilityCurrencyReport.setTotalStakes(totalStake);
                 selectionLiabilityCurrencyReport.setTotalLiability(totalLiability);
+                selectionLiabilityCurrencyReport.setNumOfBets(numOfBets);
                 selectionLiabilityCurrencyReports.add(selectionLiabilityCurrencyReport);
             });
         });
@@ -51,8 +52,30 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public String getTotalLiabilityByCurrencyReport() {
-        return "success";
+    public List<TotalLiabilityCurrencyReport>   getTotalLiabilityByCurrencyReport(List<BetDetails> betDetailsList) {
+
+        Map<String,List<BetDetails>> groupedByCurrency = betDetailsList.stream().collect(Collectors
+                .groupingBy(BetDetails::getCurrency));
+        List<TotalLiabilityCurrencyReport> totalLiabilityCurrencyReportList = new ArrayList<>();
+        groupedByCurrency.entrySet().forEach(entry -> {
+            TotalLiabilityCurrencyReport totalLiabilityCurrencyReport = TotalLiabilityCurrencyReport.builder()
+                    .Currency(entry.getKey())
+                    .build();
+            float totalStake=0L;
+            float totalLiability=0L;
+            int numOfBets=0;
+            for(BetDetails data:entry.getValue()){
+                totalStake = totalStake + data.getStake();
+                totalLiability = totalLiability + (data.getStake()*data.getPrice());
+                numOfBets ++;
+            }
+            totalLiabilityCurrencyReport.setTotalStakes(totalStake);
+            totalLiabilityCurrencyReport.setTotalLiability(totalLiability);
+            totalLiabilityCurrencyReport.setNumOfBets(numOfBets);
+            totalLiabilityCurrencyReportList.add(totalLiabilityCurrencyReport);
+        });
+        return totalLiabilityCurrencyReportList;
+
     }
 
     @Override
@@ -64,11 +87,9 @@ public class ReportServiceImpl implements ReportService {
                     .withType(BetDetails.class)
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
-            Iterator<BetDetails> iterator = csvToBean.iterator();
-            while(iterator.hasNext()){
-                BetDetails betDetails = iterator.next();
-                System.out.println(betDetails.getBetId());
-            }
+            csvToBean.forEach(e->{
+                System.out.println(e.getBetId());
+            });
         } catch (IOException ex){
             ex.printStackTrace();
         }
