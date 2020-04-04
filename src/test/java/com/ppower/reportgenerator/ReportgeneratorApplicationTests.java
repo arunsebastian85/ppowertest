@@ -2,12 +2,11 @@ package com.ppower.reportgenerator;
 
 import com.ppower.reportgenerator.domain.BetDetails;
 import com.ppower.reportgenerator.domain.SelectionLiabilityCurrencyReport;
-import com.ppower.reportgenerator.service.ReportService;
+import com.ppower.reportgenerator.service.ReportGeneratorService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 class ReportgeneratorApplicationTests {
 
 	@Autowired
-	ReportService reportService;
+	ReportGeneratorService reportGeneratorService;
 
 	@Test
 	void contextLoads() {
@@ -49,7 +48,7 @@ class ReportgeneratorApplicationTests {
 
 		List<BetDetails> betDetailsList = new ArrayList<>(Arrays.asList(betDetails,betDetails1));
 
-		List<SelectionLiabilityCurrencyReport> selectionLiabilityCurrencyReports = reportService
+		List<SelectionLiabilityCurrencyReport> selectionLiabilityCurrencyReports = reportGeneratorService
 				.getSelectionLiabilityByCurrencyReport(betDetailsList).stream()
 				.filter(f->f.getSelectionName().equalsIgnoreCase("puthussery")).collect(Collectors.toList());
 		Assertions.assertEquals(2,selectionLiabilityCurrencyReports.size());
@@ -74,7 +73,8 @@ class ReportgeneratorApplicationTests {
 	@Test
 	void testCsvReader(){
 		String file = "bet_details.csv";
-		reportService.getBetDetailsFromCSV(file);
+		String outputFile = "bet_details_out_2.csv";
+		reportGeneratorService.generateReport("SLCReport",null,null,file,outputFile);
 	}
 
 }
