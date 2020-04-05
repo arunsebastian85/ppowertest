@@ -31,9 +31,9 @@ class ReportgeneratorApplicationTests {
 				.betTimestamp("1234567")
 				.selectionId("1")
 				.selectionName("puthussery")
-				.stake(1l)
-				.price(9l)
-				.currency("euro")
+				.stake(1F)
+				.price(9F)
+				.currency("eur")
 				.build();
 
 		BetDetails betDetails1 = BetDetails.builder()
@@ -41,9 +41,9 @@ class ReportgeneratorApplicationTests {
 				.betTimestamp("1234567")
 				.selectionId("1")
 				.selectionName("puthussery")
-				.stake(2l)
-				.price(5l)
-				.currency("dollar")
+				.stake(2F)
+				.price(5F)
+				.currency("gbp")
 				.build();
 
 		List<BetDetails> betDetailsList = new ArrayList<>(Arrays.asList(betDetails,betDetails1));
@@ -52,21 +52,21 @@ class ReportgeneratorApplicationTests {
 				.getSelectionLiabilityByCurrencyReport(betDetailsList).stream()
 				.filter(f->f.getSelectionName().equalsIgnoreCase("puthussery")).collect(Collectors.toList());
 		Assertions.assertEquals(2,selectionLiabilityCurrencyReports.size());
-		Assertions.assertEquals(9,selectionLiabilityCurrencyReports.stream()
+		Assertions.assertEquals("€9.00",selectionLiabilityCurrencyReports.stream()
 				//.filter(f->f.getSelectionName().equalsIgnoreCase("puthussery"))
-				.filter(e->e.getCurrency().equalsIgnoreCase("euro"))
+				.filter(e->e.getCurrency().equalsIgnoreCase("eur"))
 				.collect(Collectors.toList()).get(0).getTotalLiability());
-		Assertions.assertEquals(1,selectionLiabilityCurrencyReports.stream()
+		Assertions.assertEquals("€1.00",selectionLiabilityCurrencyReports.stream()
 				//.filter(f->f.getSelectionName().equalsIgnoreCase("puthussery"))
-				.filter(e->e.getCurrency().equalsIgnoreCase("euro"))
+				.filter(e->e.getCurrency().equalsIgnoreCase("eur"))
 				.collect(Collectors.toList()).get(0).getTotalStakes());
-		Assertions.assertEquals(10,selectionLiabilityCurrencyReports.stream()
+		Assertions.assertEquals("£10.00",selectionLiabilityCurrencyReports.stream()
 				//.filter(f->f.getSelectionName().equalsIgnoreCase("puthussery"))
-				.filter(e->e.getCurrency().equalsIgnoreCase("dollar"))
+				.filter(e->e.getCurrency().equalsIgnoreCase("gbp"))
 				.collect(Collectors.toList()).get(0).getTotalLiability());
-		Assertions.assertEquals(2,selectionLiabilityCurrencyReports.stream()
+		Assertions.assertEquals("£2.00",selectionLiabilityCurrencyReports.stream()
 				//.filter(f->f.getSelectionName().equalsIgnoreCase("puthussery"))
-				.filter(e->e.getCurrency().equalsIgnoreCase("dollar"))
+				.filter(e->e.getCurrency().equalsIgnoreCase("gbp"))
 				.collect(Collectors.toList()).get(0).getTotalStakes());
 	}
 
@@ -74,7 +74,7 @@ class ReportgeneratorApplicationTests {
 	void testCsvReader(){
 		String file = "bet_details.csv";
 		String outputFile = "bet_details_out_2.csv";
-		reportGeneratorService.generateReport("SLCReport",null,null,file,outputFile);
+		reportGeneratorService.generateReport("SLCReport","CSV","CSV",file,outputFile);
 	}
 
 }

@@ -7,6 +7,7 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.ppower.reportgenerator.boundary.BetDetailData;
 import com.ppower.reportgenerator.domain.BetDetails;
 import com.ppower.reportgenerator.domain.GenericReport;
 import com.ppower.reportgenerator.service.CSVManipulatorService;
@@ -21,20 +22,20 @@ import java.util.List;
 public class CSVManipulatorServiceImpl implements CSVManipulatorService {
 
     @Override
-    public List<BetDetails> readBetDetailsFromCSV(String filePath) {
+    public BetDetailData readBetDetailsFromCSV(String filePath) throws FileNotFoundException {
+
         List<BetDetails> betDetailsList = new ArrayList<>();
-        try {
-            File file = ResourceUtils.getFile("classpath:"+filePath);
-            Reader reader = new FileReader(file);
-            CsvToBean<BetDetails> csvToBean = new CsvToBeanBuilder<BetDetails>(reader)
-                    .withType(BetDetails.class)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .build();
-            betDetailsList = csvToBean.parse();
-        } catch (IOException ex){
-            ex.printStackTrace();
-        }
-        return betDetailsList;
+        File file = ResourceUtils.getFile("classpath:"+filePath);
+        Reader reader = new FileReader(file);
+        CsvToBean<BetDetails> csvToBean = new CsvToBeanBuilder<BetDetails>(reader)
+                .withType(BetDetails.class)
+                .withIgnoreLeadingWhiteSpace(true)
+                .build();
+        betDetailsList = csvToBean.parse();
+        return BetDetailData.builder()
+                .betDetailsList(betDetailsList)
+                .build();
+
     }
 
     @Override
@@ -52,6 +53,7 @@ public class CSVManipulatorServiceImpl implements CSVManipulatorService {
                 .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
                 .build();
         statefulBeanToCsv.write(reportDataList);
+        writer.close();
         return file.getAbsolutePath();
     }
 

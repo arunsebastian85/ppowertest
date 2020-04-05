@@ -19,9 +19,9 @@ public class BetDetails {
     @CsvBindByName
     private String selectionName;
     @CsvBindByName
-    private float stake;
+    private Float stake;
     @CsvBindByName
-    private float price;
+    private Float price;
     @CsvBindByName
     private String currency;
 

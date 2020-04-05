@@ -1,6 +1,8 @@
 package com.ppower.reportgenerator.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.opencsv.bean.CsvBindByName;
+import com.ppower.reportgenerator.utils.CurrencyEnum;
 
 public class GenericReport {
 
@@ -9,12 +11,12 @@ public class GenericReport {
     @CsvBindByName(column = "Num Of Bets", required = true)
     private int numOfBets;
     @CsvBindByName(column = "Total Stakes", required = true)
-    private Float totalStakes;
+    private String totalStakes;
     @CsvBindByName(column = "Total Liability", required = true)
-    private Float totalLiability;
+    private String totalLiability;
 
     public String getCurrency() {
-        return currency;
+        return currency.trim();
     }
 
     public void setCurrency(String currency) { this.currency = currency; }
@@ -23,30 +25,39 @@ public class GenericReport {
         this.numOfBets = numOfBets;
     }
 
-    public Float getTotalStakes() {
-        return totalStakes;
+    public int getNumOfBets() {
+        return numOfBets;
+    }
+    public String getTotalStakes() {
+        return wrapCurrency(currency,totalStakes);
     }
 
-    public void setTotalStakes(Float totalStakes) {
+    public void setTotalStakes(String totalStakes) {
         this.totalStakes = totalStakes;
     }
 
-    public Float getTotalLiability() {
-        return totalLiability;
+    public String getTotalLiability() {
+        return wrapCurrency(currency,totalLiability);
     }
 
-    public void setTotalLiability(Float totalLiability) {
+    @JsonIgnore
+    public Float getTotalLiabilityFloat() {
+        return new Float(totalLiability);
+    }
+
+    public void setTotalLiability(String totalLiability) {
         this.totalLiability = totalLiability;
     }
 
     @Override
     public String toString(){
-        return currency+" "+numOfBets+" "+wrapCurrency(currency,totalStakes)+" "+wrapCurrency(currency,totalLiability);
+        return currency +" | "+ numOfBets +" | "+ totalStakes +" | "+ totalLiability;
     }
 
-    private String wrapCurrency(String currencyVal, Float value){
-        String currency = currencyVal.trim().equalsIgnoreCase("EUR") ? "€" : "£";
-        return currency+String.format("%.2f", value);
+    private String wrapCurrency(String currencyVal, String value){
+        String currency = CurrencyEnum.valueOf(currencyVal.toUpperCase().trim()).getValue();
+        //currencyVal.trim().equalsIgnoreCase("EUR") ? "€" : "£";
+        return currency+value;
     }
 
 }

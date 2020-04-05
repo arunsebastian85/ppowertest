@@ -9,7 +9,7 @@ public class TLCReportComparator implements ReportComparatorService{
         TotalLiabilityCurrencyReport report1 = (TotalLiabilityCurrencyReport) o1;
         TotalLiabilityCurrencyReport report2 = (TotalLiabilityCurrencyReport) o2;
         int currencyComparison = report2.getCurrency().compareTo(report1.getCurrency());
-        return currencyComparison ==0 ? report2.getTotalLiability().compareTo(report1.getTotalLiability())
+        return currencyComparison ==0 ? report2.getTotalLiabilityFloat().compareTo(report1.getTotalLiabilityFloat())
                 : currencyComparison;
     }
 }

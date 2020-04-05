@@ -10,7 +10,7 @@ public class SLCReportComparator implements ReportComparatorService {
         SelectionLiabilityCurrencyReport report1 = (SelectionLiabilityCurrencyReport) o1;
         SelectionLiabilityCurrencyReport report2 = (SelectionLiabilityCurrencyReport) o2;
         int currencyComparison = report2.getCurrency().compareTo(report1.getCurrency());
-        return currencyComparison ==0 ? report2.getTotalLiability().compareTo(report1.getTotalLiability())
+        return currencyComparison ==0 ? report2.getTotalLiabilityFloat().compareTo(report1.getTotalLiabilityFloat())
                 : currencyComparison;
     }
 

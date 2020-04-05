@@ -4,17 +4,22 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.ppower.reportgenerator.boundary.BetDetailData;
+import com.ppower.reportgenerator.boundary.ReportResponseData;
 import com.ppower.reportgenerator.domain.BetDetails;
 import com.ppower.reportgenerator.domain.GenericReport;
 import com.ppower.reportgenerator.domain.SelectionLiabilityCurrencyReport;
 import com.ppower.reportgenerator.domain.TotalLiabilityCurrencyReport;
 import com.ppower.reportgenerator.service.CSVManipulatorService;
+import com.ppower.reportgenerator.service.HTTPService;
 import com.ppower.reportgenerator.service.ReportComparatorService;
 import com.ppower.reportgenerator.service.ReportGeneratorService;
+import com.ppower.reportgenerator.utils.CurrencyEnum;
 import com.ppower.reportgenerator.utils.ReportComparatorFactory;
 import com.ppower.reportgenerator.utils.ReportUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -33,33 +38,55 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     @Autowired
     ReportUtils reportUtils;
 
+    @Autowired
+    HTTPService httpService;
+
     @Override
-    public List<? extends GenericReport> generateReport(String reportType, String outputFormat, String inputFormat
-            , String inputFile, String outputFile){
-
+    public ReportResponseData generateReport(String reportType, String outputFormat, String inputFormat,
+                                                        String inputFile, String outputFile){
+        ReportResponseData reportResponseData = null;
         try {
+
+            String currency = CurrencyEnum.valueOf("EUR").getValue();
+
+            reportUtils.sanitizeInput(inputFormat,outputFormat,reportType.toUpperCase());
             //read input file
-            List<BetDetails> betDetailsList = csvManipulatorService.readBetDetailsFromCSV(inputFile);
+            BetDetailData betDetailData = inputFormat.equalsIgnoreCase("CSV") ?
+                    csvManipulatorService.readBetDetailsFromCSV(inputFile) : httpService.getBetDetailsOverHttp(inputFile);
+            if(!Objects.isNull(betDetailData)) {
 
-            //generate report
-            List<? extends GenericReport> reportList = reportType.equalsIgnoreCase("SLCReport")
-                    ? getSelectionLiabilityByCurrencyReport(betDetailsList) : getTotalLiabilityByCurrencyReport(betDetailsList);
+                List<BetDetails> betDetailsList = betDetailData.getBetDetailsList();
 
-            //Print Report in Console
-            System.out.println(reportUtils.getReportHeader(reportType));
-            reportList.forEach(e -> System.out.println(e.toString()));
+                //generate report
+                List < ? extends GenericReport > reportList = reportType.equalsIgnoreCase("SLCReport")
+                        ? getSelectionLiabilityByCurrencyReport(betDetailsList) : getTotalLiabilityByCurrencyReport(betDetailsList);
 
-            String outputLocation = csvManipulatorService.exportToCSV(reportList,outputFile,reportType);
+                //Export report to the selected Output Format
+                String outputLocation = "Output printed in CONSOLE";
+                if(outputFormat.equalsIgnoreCase("CSV")){
+                    outputLocation = csvManipulatorService.exportToCSV(reportList, outputFile, reportType);
+                } else {
+                    //Print Report in Console
+                    System.out.println(reportUtils.getReportHeader(reportType));
+                    reportList.forEach(e -> System.out.println(e.toString()));
+                }
 
-            return reportList;
+                //Build API response
+                reportResponseData = ReportResponseData.builder()
+                        .reportDataList(reportList)
+                        .outputCSVFilePath(outputLocation)
+                        .build();
+
+            }
 
         } catch (IOException e) {
-           throw new RuntimeException(e.getMessage());
+           throw new RuntimeException(e.getMessage(),e.getCause());
         } catch (CsvDataTypeMismatchException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage(),e.getCause());
         } catch (CsvRequiredFieldEmptyException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage(),e.getCause());
         }
+        return reportResponseData;
     }
 
     @Override
@@ -74,16 +101,16 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 SelectionLiabilityCurrencyReport selectionLiabilityCurrencyReport = new SelectionLiabilityCurrencyReport();
                 selectionLiabilityCurrencyReport.setSelectionName(entry.getKey());
                 selectionLiabilityCurrencyReport.setCurrency(keySet.getKey());
-                float totalStake=0L;
-                float totalLiability=0L;
+                Float totalStake=0F;
+                Float totalLiability=0F;
                 int numOfBets = 0;
                 for(BetDetails data:keySet.getValue()){
                    totalStake = totalStake + data.getStake();
                    totalLiability = totalLiability + (data.getStake()*data.getPrice());
                    numOfBets ++;
                 }
-                selectionLiabilityCurrencyReport.setTotalStakes(totalStake);
-                selectionLiabilityCurrencyReport.setTotalLiability(totalLiability);
+                selectionLiabilityCurrencyReport.setTotalStakes(reportUtils.formatAmount(totalStake));
+                selectionLiabilityCurrencyReport.setTotalLiability(reportUtils.formatAmount(totalLiability));
                 selectionLiabilityCurrencyReport.setNumOfBets(numOfBets);
                 selectionLiabilityCurrencyReportList.add(selectionLiabilityCurrencyReport);
             });
@@ -102,47 +129,22 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         groupedByCurrency.entrySet().forEach(entry -> {
             TotalLiabilityCurrencyReport totalLiabilityCurrencyReport = new TotalLiabilityCurrencyReport();
             totalLiabilityCurrencyReport.setCurrency(entry.getKey());
-            float totalStake=0L;
-            float totalLiability=0L;
+            Float totalStake=0F;
+            Float totalLiability=0F;
             int numOfBets=0;
             for(BetDetails data:entry.getValue()){
                 totalStake = totalStake + data.getStake();
                 totalLiability = totalLiability + (data.getStake()*data.getPrice());
                 numOfBets ++;
             }
-            totalLiabilityCurrencyReport.setTotalStakes(totalStake);
-            totalLiabilityCurrencyReport.setTotalLiability(totalLiability);
+            totalLiabilityCurrencyReport.setTotalStakes(reportUtils.formatAmount(totalStake));
+            totalLiabilityCurrencyReport.setTotalLiability(reportUtils.formatAmount(totalLiability));
             totalLiabilityCurrencyReport.setNumOfBets(numOfBets);
             totalLiabilityCurrencyReportList.add(totalLiabilityCurrencyReport);
         });
         Collections.sort(totalLiabilityCurrencyReportList,getComparator("TLCR"));
         return totalLiabilityCurrencyReportList;
 
-    }
-
-
-    public List<BetDetails> getBetDetailsFromCSV(String filePath) {
-        List<BetDetails> betDetailsList = new ArrayList<>();
-        try {
-            File file = ResourceUtils.getFile("classpath:"+filePath);
-            Reader reader = new FileReader(file);
-            CsvToBean<BetDetails> csvToBean = new CsvToBeanBuilder<BetDetails>(reader)
-                    .withType(BetDetails.class)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .build();
-            betDetailsList = csvToBean.parse();
-            betDetailsList.forEach(e->{
-                System.out.println("-------"+e.toString());
-            });
-            List<SelectionLiabilityCurrencyReport> list = getSelectionLiabilityByCurrencyReport(betDetailsList);
-            System.out.println("selectionName  currency numOfBets totalStakes totalLiability");
-            list.forEach(e->{
-                System.out.println(e.toString());
-            });
-        } catch (IOException ex){
-            ex.printStackTrace();
-        }
-        return betDetailsList;
     }
 
     private ReportComparatorService getComparator(String type){
