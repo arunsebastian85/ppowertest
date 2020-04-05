@@ -8,9 +8,9 @@ import java.util.Arrays;
 public class ReportUtils {
     private static final String SLCRHEADER= "Selection | Currency | NumOfBets | Total Stakes | Total Liability";
     private static final String TLCRHEADER= "Currency | NumOfBets | Total Stakes | Total Liability";
-    private static final String INPUT_FORMAT_ERROR_MSG="Invalid InputFormat param value. Allowed only [CSV,JSON] \n";
-    private static final String OUTPUT_FORMAT_ERROR_MSG="Invalid OutputFormat param value. Allowed only [CSV,JSON] \n";
-    private static final String REPORT_TYPE_ERROR_MSG="Invalid ReportType param value. Allowed only [SLCREPORT,TLCREPORT] \n";
+    private static final String INPUT_FORMAT_ERROR_MSG="Invalid InputFormat param value. Allowed only [CSV,JSON] |";
+    private static final String OUTPUT_FORMAT_ERROR_MSG="Invalid OutputFormat param value. Allowed only [CSV,CONSOLE] |";
+    private static final String REPORT_TYPE_ERROR_MSG="Invalid ReportType param value. Allowed only [SLCReport,TLCReport]";
 
 
     public String getReportHeader(String type){

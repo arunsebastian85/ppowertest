@@ -3,7 +3,6 @@ package com.ppower.reportgenerator.service;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.ppower.reportgenerator.boundary.BetDetailData;
-import com.ppower.reportgenerator.domain.BetDetails;
 import com.ppower.reportgenerator.domain.GenericReport;
 
 import java.io.FileNotFoundException;

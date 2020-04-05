@@ -1,7 +1,5 @@
 package com.ppower.reportgenerator.service.impl;
 
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.ppower.reportgenerator.boundary.BetDetailData;
@@ -14,18 +12,12 @@ import com.ppower.reportgenerator.service.CSVManipulatorService;
 import com.ppower.reportgenerator.service.HTTPService;
 import com.ppower.reportgenerator.service.ReportComparatorService;
 import com.ppower.reportgenerator.service.ReportGeneratorService;
-import com.ppower.reportgenerator.utils.CurrencyEnum;
 import com.ppower.reportgenerator.utils.ReportComparatorFactory;
 import com.ppower.reportgenerator.utils.ReportUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,11 +37,9 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     public ReportResponseData generateReport(String reportType, String outputFormat, String inputFormat,
                                                         String inputFile, String outputFile){
         ReportResponseData reportResponseData = null;
+
         try {
-
-            String currency = CurrencyEnum.valueOf("EUR").getValue();
-
-            reportUtils.sanitizeInput(inputFormat,outputFormat,reportType.toUpperCase());
+            reportUtils.sanitizeInput(inputFormat.toUpperCase(),outputFormat.toUpperCase(),reportType.toUpperCase());
             //read input file
             BetDetailData betDetailData = inputFormat.equalsIgnoreCase("CSV") ?
                     csvManipulatorService.readBetDetailsFromCSV(inputFile) : httpService.getBetDetailsOverHttp(inputFile);

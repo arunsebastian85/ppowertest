@@ -74,7 +74,7 @@ class ReportgeneratorApplicationTests {
 	void testCsvReader(){
 		String file = "bet_details.csv";
 		String outputFile = "bet_details_out_2.csv";
-		reportGeneratorService.generateReport("SLCReport","CSV","CSV",file,outputFile);
+		reportGeneratorService.generateReport("SLCReport","csv","CSV",file,outputFile);
 	}
 
 }

@@ -2,7 +2,6 @@ package com.ppower.reportgenerator.service;
 
 import com.ppower.reportgenerator.boundary.ReportResponseData;
 import com.ppower.reportgenerator.domain.BetDetails;
-import com.ppower.reportgenerator.domain.GenericReport;
 import com.ppower.reportgenerator.domain.SelectionLiabilityCurrencyReport;
 import com.ppower.reportgenerator.domain.TotalLiabilityCurrencyReport;
 
