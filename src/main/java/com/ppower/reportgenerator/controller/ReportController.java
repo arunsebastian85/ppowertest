@@ -1,5 +1,6 @@
 package com.ppower.reportgenerator.controller;
 
+import com.ppower.reportgenerator.boundary.ReportInputObject;
 import com.ppower.reportgenerator.boundary.ReportResponseData;
 import com.ppower.reportgenerator.service.ReportGeneratorService;
 import io.swagger.annotations.Api;
@@ -31,11 +32,17 @@ public class ReportController {
             response = ReportResponseData.class)
     public ResponseEntity<ReportResponseData> generateRreportfromCSV
             (@RequestParam(value = "reportType" , defaultValue = "SLCReport") String reportType,
-             @RequestParam(value = "outputFile", defaultValue = "SLCReport.csv") String outputFile,
-             @RequestParam(value = "outputFormat", defaultValue = "csv") String outputFormat,
-             @RequestParam(value = "inputFile", defaultValue = "bet_details.csv") String inputFile){
-        ReportResponseData reportResponseData = reportGeneratorService.generateReport
-                (reportType,outputFormat,CSV,inputFile,outputFile);
+             @RequestParam(value = "outputFile", defaultValue = "SLCReport") String outputFile,
+             @RequestParam(value = "outputFormat") String outputFormat,
+             @RequestParam(value = "inputFile", defaultValue = "bet_details") String inputFile){
+        ReportInputObject reportInputObject = ReportInputObject.builder()
+                .inputFile(inputFile)
+                .inputFormat(CSV)
+                .outputFile(outputFile)
+                .outputFormat(outputFormat)
+                .reportType(reportType)
+                .build();
+        ReportResponseData reportResponseData = reportGeneratorService.generateReport(reportInputObject);
         if(Objects.nonNull(reportResponseData)){
             return new ResponseEntity<ReportResponseData>(reportResponseData, HttpStatus.OK);
         } else {
@@ -52,8 +59,14 @@ public class ReportController {
              @RequestParam(value = "outputFile", defaultValue = "SLCReport.csv") String outputFile,
              @RequestParam(value = "outputFormat", defaultValue = "csv") String outputFormat,
              @RequestParam(value = "serviceUrl", defaultValue = "<http://serviceurl>") String serviceUrl){
-        ReportResponseData reportResponseData = reportGeneratorService.generateReport
-                (reportType,outputFormat,JSON,serviceUrl,outputFile);
+        ReportInputObject reportInputObject = ReportInputObject.builder()
+                .inputFile(serviceUrl)
+                .inputFormat(CSV)
+                .outputFile(outputFile)
+                .outputFormat(outputFormat)
+                .reportType(reportType)
+                .build();
+        ReportResponseData reportResponseData = reportGeneratorService.generateReport(reportInputObject);
         if(Objects.nonNull(reportResponseData)){
             return new ResponseEntity<ReportResponseData>(reportResponseData, HttpStatus.OK);
         } else {

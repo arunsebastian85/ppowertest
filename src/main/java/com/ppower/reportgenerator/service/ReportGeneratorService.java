@@ -1,5 +1,6 @@
 package com.ppower.reportgenerator.service;
 
+import com.ppower.reportgenerator.boundary.ReportInputObject;
 import com.ppower.reportgenerator.boundary.ReportResponseData;
 import com.ppower.reportgenerator.domain.BetDetails;
 import com.ppower.reportgenerator.domain.SelectionLiabilityCurrencyReport;
@@ -13,8 +14,7 @@ public interface ReportGeneratorService {
 
    List<TotalLiabilityCurrencyReport> getTotalLiabilityByCurrencyReport(List<BetDetails> betDetailsList);
 
-   ReportResponseData generateReport(String reportType, String outputFormat, String inputFormat
-           , String inputFile, String outputFile );
+   ReportResponseData generateReport(ReportInputObject reportInputObject);
    //List<BetDetails> getBetDetailsFromJson();
 
 }

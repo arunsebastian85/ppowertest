@@ -1,8 +1,10 @@
 package com.ppower.reportgenerator.utils;
 
+import com.ppower.reportgenerator.boundary.ReportInputObject;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 @Component
 public class ReportUtils {
@@ -12,6 +14,8 @@ public class ReportUtils {
     private static final String INPUT_FORMAT_ERROR_MSG="Invalid InputFormat param value. Allowed only [CSV,JSON] |";
     private static final String OUTPUT_FORMAT_ERROR_MSG="Invalid OutputFormat param value. Allowed only [CSV,CONSOLE] |";
     private static final String REPORT_TYPE_ERROR_MSG="Invalid ReportType param value. Allowed only [SLCReport,TLCReport]";
+    private static final String INPUT_FILE_EXT_ERROR_MSG="Invalid Input file format. Only .csv file allowed]";
+    private static final String OUTPUT_FILE_EXT_ERROR_MSG="Invalid Output file format. Only .csv file allowed]";
     private static final String SLC_REPORT = "SLCReport";
 
     public String getReportHeader(String type){
@@ -22,23 +26,42 @@ public class ReportUtils {
         return String.format("%.2f", value);
     }
 
-    public void sanitizeInput(String inputFormat, String outputFormat, String reportType)
-            throws RuntimeException{
-        StringBuffer errorMessage = new StringBuffer();
-        if(!Arrays.stream(InputFormat.values()).anyMatch((i) -> i.name().equals(inputFormat))){
-            errorMessage.append(INPUT_FORMAT_ERROR_MSG);
-        }
-        if(!Arrays.stream(OutputFormat.values()).anyMatch((o) -> o.name().equals(outputFormat))){
-            errorMessage.append(OUTPUT_FORMAT_ERROR_MSG);
-        }
-        if(!Arrays.stream(ReportType.values()).anyMatch((r) -> r.name().equals(reportType))) {
-            errorMessage.append(REPORT_TYPE_ERROR_MSG);
-        }
-        if(!errorMessage.toString().isEmpty()){
+    public void sanitizeInput(ReportInputObject reportInputObject) throws RuntimeException{
+
+        StringBuffer errorMessage =inputValidationFunction.apply(reportInputObject);
+        if(!inputValidationFunction.apply(reportInputObject).toString().isEmpty()){
             throw new RuntimeException(errorMessage.toString());
         }
+
     }
 
+    Function<ReportInputObject,StringBuffer> inputValidationFunction = reportInputObject -> {
+        StringBuffer errorMessage = new StringBuffer();
+        if(!Arrays.stream(InputFormat.values()).anyMatch((i) ->
+                i.name().equals(capitalize(reportInputObject.getInputFormat())))){
+            errorMessage.append(INPUT_FORMAT_ERROR_MSG);
+        }
+        if(!Arrays.stream(OutputFormat.values()).anyMatch((o) ->
+                o.name().equals(capitalize(reportInputObject.getOutputFormat())))){
+            errorMessage.append(OUTPUT_FORMAT_ERROR_MSG);
+        }
+        if(!Arrays.stream(ReportType.values()).anyMatch((r) ->
+                r.name().equals(capitalize(reportInputObject.getReportType())))) {
+            errorMessage.append(REPORT_TYPE_ERROR_MSG);
+        }
+        if(capitalize(reportInputObject.getInputFormat()).equals("CSV")
+                && !capitalize(reportInputObject.getInputFile()).endsWith(".CSV")){
+            errorMessage.append(INPUT_FILE_EXT_ERROR_MSG);
+        }
+        if(!capitalize(reportInputObject.getOutputFile()).endsWith(".CSV")){
+            errorMessage.append(OUTPUT_FILE_EXT_ERROR_MSG);
+        }
+        return errorMessage;
+    };
+
+    private static String capitalize(String value){
+        return value.toUpperCase();
+    }
 }
 
 enum InputFormat {

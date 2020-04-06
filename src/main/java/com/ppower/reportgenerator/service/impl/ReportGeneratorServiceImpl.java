@@ -3,6 +3,7 @@ package com.ppower.reportgenerator.service.impl;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.ppower.reportgenerator.boundary.BetDetailData;
+import com.ppower.reportgenerator.boundary.ReportInputObject;
 import com.ppower.reportgenerator.boundary.ReportResponseData;
 import com.ppower.reportgenerator.domain.BetDetails;
 import com.ppower.reportgenerator.domain.GenericReport;
@@ -34,30 +35,35 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     HTTPService httpService;
 
     @Override
-    public ReportResponseData generateReport(String reportType, String outputFormat, String inputFormat,
-                                                        String inputFile, String outputFile){
+    public ReportResponseData generateReport(ReportInputObject reportInputObject){
         ReportResponseData reportResponseData = null;
 
         try {
-            reportUtils.sanitizeInput(inputFormat.toUpperCase(),outputFormat.toUpperCase(),reportType.toUpperCase());
+
+            //Validate Input parameters
+            reportUtils.sanitizeInput(reportInputObject);
+
             //read input file
-            BetDetailData betDetailData = inputFormat.equalsIgnoreCase("CSV") ?
-                    csvManipulatorService.readBetDetailsFromCSV(inputFile) : httpService.getBetDetailsOverHttp(inputFile);
+            BetDetailData betDetailData = reportInputObject.getInputFormat().equalsIgnoreCase("CSV")
+                    ? csvManipulatorService.readBetDetailsFromCSV(reportInputObject.getInputFile())
+                    : httpService.getBetDetailsOverHttp(reportInputObject.getInputFile());
+
             if(!Objects.isNull(betDetailData)) {
 
                 List<BetDetails> betDetailsList = betDetailData.getBetDetailsList();
 
                 //generate report
-                List < ? extends GenericReport > reportList = reportType.equalsIgnoreCase("SLCReport")
+                List < ? extends GenericReport > reportList = reportInputObject.getReportType().equalsIgnoreCase("SLCReport")
                         ? getSelectionLiabilityByCurrencyReport(betDetailsList) : getTotalLiabilityByCurrencyReport(betDetailsList);
 
                 //Export report to the selected Output Format
                 String outputLocation = "Output printed in CONSOLE";
-                if(outputFormat.equalsIgnoreCase("CSV")){
-                    outputLocation = csvManipulatorService.exportToCSV(reportList, outputFile, reportType);
+                if(reportInputObject.getOutputFormat().equalsIgnoreCase("CSV")){
+                    outputLocation = csvManipulatorService.exportToCSV(reportList, reportInputObject.getOutputFile(),
+                            reportInputObject.getReportType());
                 } else {
                     //Print Report in Console
-                    System.out.println(reportUtils.getReportHeader(reportType));
+                    System.out.println(reportUtils.getReportHeader(reportInputObject.getReportType()));
                     reportList.forEach(e -> System.out.println(e.toString()));
                 }
 

@@ -46,7 +46,6 @@ public class CSVManipulatorServiceImpl implements CSVManipulatorService {
         if (!file.exists()) {
             file.createNewFile();
         }
-        System.out.println(file.getAbsolutePath());
         Writer writer = new FileWriter(file);
         StatefulBeanToCsv statefulBeanToCsv = new StatefulBeanToCsvBuilder(writer)
                 .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
