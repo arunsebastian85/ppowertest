@@ -51,7 +51,7 @@ public class GenericReport {
 
     @Override
     public String toString(){
-        return currency +" | "+ numOfBets +" | "+ totalStakes +" | "+ totalLiability;
+        return currency +" | "+ numOfBets +" | "+ getTotalStakes() +" | "+ getTotalLiability();
     }
 
     private String wrapCurrency(String currencyVal, String value){

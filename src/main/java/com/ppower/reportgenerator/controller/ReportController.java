@@ -32,9 +32,9 @@ public class ReportController {
             response = ReportResponseData.class)
     public ResponseEntity<ReportResponseData> generateRreportfromCSV
             (@RequestParam(value = "reportType" , defaultValue = "SLCReport") String reportType,
-             @RequestParam(value = "outputFile", defaultValue = "SLCReport") String outputFile,
-             @RequestParam(value = "outputFormat") String outputFormat,
-             @RequestParam(value = "inputFile", defaultValue = "bet_details") String inputFile){
+             @RequestParam(value = "outputFile", defaultValue = "SLCReport.csv") String outputFile,
+             @RequestParam(value = "outputFormat", defaultValue = "CSV") String outputFormat,
+             @RequestParam(value = "inputFile", defaultValue = "bet_details.csv") String inputFile){
         ReportInputObject reportInputObject = ReportInputObject.builder()
                 .inputFile(inputFile)
                 .inputFormat(CSV)

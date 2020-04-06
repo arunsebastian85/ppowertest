@@ -12,7 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class HTTPServiceTestConfig {
     @Bean
     @Primary
-    public HTTPService createPalmService() {
+    public HTTPService createHttpService() {
         return Mockito.mock(HTTPService.class);
     }
 }

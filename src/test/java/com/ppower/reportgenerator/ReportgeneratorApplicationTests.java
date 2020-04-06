@@ -12,6 +12,7 @@ import com.ppower.reportgenerator.service.impl.CSVManipulatorServiceImpl;
 import com.ppower.reportgenerator.service.impl.HTTPServiceImpl;
 import com.ppower.reportgenerator.service.impl.ReportGeneratorServiceImpl;
 import com.ppower.reportgenerator.utils.ReportUtils;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @EnableAutoConfiguration
 @RunWith(SpringRunner.class)
@@ -93,7 +94,7 @@ class ReportgeneratorApplicationTests {
 	}
 
 	@Test
-	public void testCsvReaderSLCReport(){
+	public void testCsvReaderSLCReportCSV(){
 		String file = "bet_details.csv";
 		String outputFile = "bet_details_out_slcreport.csv";
 		ReportInputObject reportInputObject = ReportInputObject.builder()
@@ -104,6 +105,24 @@ class ReportgeneratorApplicationTests {
 				.reportType("SLCReport")
 				.build();
 		ReportResponseData reportResponseData = reportGeneratorService.generateReport(reportInputObject);
+		assertNotNull(reportResponseData.getReportDataList());
+		assertNotEquals("Output printed in CONSOLE",reportResponseData.getOutputCSVFilePath());
+	}
+
+	@Test
+	public void testCsvReaderSLCReportConsole(){
+		String file = "bet_details.csv";
+		String outputFile = "bet_details_out_slcreport.csv";
+		ReportInputObject reportInputObject = ReportInputObject.builder()
+				.inputFile(file)
+				.inputFormat("csv")
+				.outputFile(outputFile)
+				.outputFormat("console")
+				.reportType("SLCReport")
+				.build();
+		ReportResponseData reportResponseData = reportGeneratorService.generateReport(reportInputObject);
+		assertNotNull(reportResponseData.getReportDataList());
+		assertEquals("Output printed in CONSOLE", reportResponseData.getOutputCSVFilePath());
 	}
 
 	@Test
@@ -120,7 +139,7 @@ class ReportgeneratorApplicationTests {
 		ReportResponseData reportResponseData = reportGeneratorService.generateReport(reportInputObject);
 	}
 
-	@Test
+	@Ignore
 	public void testCsvReaderTLCReporHTTP(){
 		String outputFile = "bet_details_out_tlcreport.csv";
 		ReportInputObject reportInputObject = ReportInputObject.builder()
